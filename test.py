@@ -26,8 +26,12 @@ def generate_certificate_authority():
     builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=3650))
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(private_key.public_key())
+    # builder = builder.add_extension(
+    #     extension=x509.BasicConstraints(ca=True, path_length=None),
+    #     critical=True,
+    # )
     builder = builder.add_extension(
-        extension=x509.BasicConstraints(ca=True, path_length=None),
+        x509.BasicConstraints(ca=True, path_length=None),
         critical=True,
     )
 
@@ -82,7 +86,7 @@ def generate_client_certificate(username):
         .not_valid_before(datetime.datetime.utcnow())
         .not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=365))
         .add_extension(
-            extension=x509.BasicConstraints(ca=False),
+            x509.BasicConstraints(ca=False, path_length=None),
             critical=True
         )
         .sign(private_key=ca_private_key, algorithm=hashes.SHA256(), backend=default_backend())
