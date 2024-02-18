@@ -1,6 +1,7 @@
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 import datetime
@@ -26,7 +27,8 @@ def generate_certificate_authority():
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(private_key.public_key())
     builder = builder.add_extension(
-        x509.BasicConstraints(ca=True, path_length=None), critical=True,
+        extension=x509.BasicConstraints(ca=True, path_length=None),
+        critical=True,
     )
 
     # Sign the certificate with its own private key
@@ -71,9 +73,19 @@ def generate_client_certificate(username):
         ca_certificate = x509.load_pem_x509_certificate(f.read(), default_backend())
 
     # Sign the CSR with the CA private key to create the client certificate
-    client_certificate = csr.public_key().sign(
-        ca_private_key, hashes.SHA256(),
-        default_backend()
+    client_certificate = (
+        x509.CertificateBuilder()
+        .subject_name(csr.subject)
+        .issuer_name(ca_certificate.subject)
+        .public_key(csr.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.utcnow())
+        .not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=365))
+        .add_extension(
+            extension=x509.BasicConstraints(ca=False),
+            critical=True
+        )
+        .sign(private_key=ca_private_key, algorithm=hashes.SHA256(), backend=default_backend())
     )
 
     # Write the client certificate and private key to files
