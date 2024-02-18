@@ -3,7 +3,7 @@ import subprocess
 
 def create_openvpn_config(config_name, client_ip, server_ip, port):
     # Define the path where you want to save the OpenVPN configuration files
-    config_dir = '/root/'
+    config_dir = '/root/vpn/vpn'
 
     # Create the directory if it doesn't exist
     os.makedirs(config_dir, exist_ok=True)
@@ -23,15 +23,7 @@ def create_openvpn_config(config_name, client_ip, server_ip, port):
     cipher AES-256-CBC
     auth SHA256
     verb 3
-    <ca>
-    # Contents of your ca.crt file here
-    </ca>
-    <cert>
-    # Contents of your client.crt file here
-    </cert>
-    <key>
-    # Contents of your client.key file here
-    </key>
+    secret static.key
     """
 
     # Write the configuration content to a new file
