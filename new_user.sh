@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo ""
 echo "Tell me a name for the client."
 echo "The name must consist of alphanumeric character. It may also include an underscore or a dash."
@@ -88,6 +90,20 @@ cp /etc/openvpn/client-template.txt "$homeDir/$CLIENT.ovpn"
         ;;
     esac
 } >>"$homeDir/$CLIENT.ovpn"
+
+# Data transfer limit
+DATA_LIMIT_MB=1024
+# Active duration in months
+ACTIVE_DURATION_MONTHS=6
+
+# Write data transfer limit and active duration to client configuration file
+echo "## Data Transfer Limit (MB)" >> "$homeDir/$CLIENT.ovpn"
+echo "setenv DATA_LIMIT_MB $DATA_LIMIT_MB" >> "$homeDir/$CLIENT.ovpn"
+echo "" >> "$homeDir/$CLIENT.ovpn"
+
+echo "## Active Duration (months)" >> "$homeDir/$CLIENT.ovpn"
+echo "setenv ACTIVE_DURATION_MONTHS $ACTIVE_DURATION_MONTHS" >> "$homeDir/$CLIENT.ovpn"
+echo "" >> "$homeDir/$CLIENT.ovpn"
 
 echo ""
 echo "The configuration file has been written to $homeDir/$CLIENT.ovpn."
